@@ -15,7 +15,7 @@ public class OcpiAuthorizationInfo
     /// The complete Token object for which this authorization was requested.
     /// </summary>
     [JsonPropertyName("token")]
-    public OcpiToken Token { get; set; }
+    public OcpiToken? Token { get; set; }
 
     /// <summary>
     /// Optional reference to the location if it was included in the request, and if

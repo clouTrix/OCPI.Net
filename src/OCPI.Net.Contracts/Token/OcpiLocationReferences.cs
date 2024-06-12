@@ -8,7 +8,7 @@ public class OcpiLocationReferences
     /// Unique identifier for the location.
     /// </summary>
     [JsonPropertyName("location_id")]
-    public string LocationId { get; set; }
+    public string? LocationId { get; set; }
 
     /// <summary>
     /// Unique identifiers for EVSEs within the CPO’s platform for the EVSE within the
