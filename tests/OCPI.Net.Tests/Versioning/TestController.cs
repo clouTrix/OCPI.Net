@@ -2,7 +2,7 @@
 
 namespace OCPI.Versioning
 {
-    [Route("[Controller")]
+    [Route("[Controller]")]
     public class TestController : ControllerBase
     {
     }

@@ -5,8 +5,8 @@ namespace OCPI.Contracts;
 public class OcpiVersionDetails
 {
     [JsonPropertyName("version")]
-    public required OcpiVersion Version { get; set; }
+    public OcpiVersion? Version { get; set; }
 
     [JsonPropertyName("endpoints")]
-    public required IEnumerable<OcpiEndpoint> Endpoints { get; set; }
+    public IEnumerable<OcpiEndpoint>? Endpoints { get; set; }
 }

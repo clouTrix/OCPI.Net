@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace OCPI;
 
-internal class OcpiDateTimeConverter : JsonConverter<DateTime>
+public class OcpiDateTimeConverter : JsonConverter<DateTime>
 {
     private const string _format = "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffZ";
 
