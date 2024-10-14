@@ -5,8 +5,8 @@ namespace OCPI.Contracts;
 public class OcpiVersionInfo
 {
     [JsonPropertyName("version")]
-    public required OcpiVersion Version { get; set; }
+    public OcpiVersion? Version { get; set; }
 
     [JsonPropertyName("url")]
-    public required string Url { get; set; }
+    public string? Url { get; set; }
 }
