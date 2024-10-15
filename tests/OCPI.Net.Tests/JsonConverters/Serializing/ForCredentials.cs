@@ -4,7 +4,7 @@ using FluentAssertions;
 using OCPI.Contracts;
 using Xunit.Abstractions;
 
-namespace OCPI.JsonConverters.Serializing;
+namespace OCPI.Tests.JsonConverters.Serializing;
 
 public class ForCredentials(ITestOutputHelper output) {
     private static readonly OcpiCredentials fullCredentials = 

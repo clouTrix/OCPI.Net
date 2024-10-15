@@ -4,7 +4,7 @@ using FluentAssertions;
 using OCPI.Contracts;
 using Xunit.Abstractions;
 
-namespace OCPI.JsonConverters.Deserializing;
+namespace OCPI.Tests.JsonConverters.Deserializing;
 
 public class ForCredentials {
     private static string jsonStr = """

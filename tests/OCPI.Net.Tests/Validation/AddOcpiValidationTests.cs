@@ -1,8 +1,9 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using OCPI.Contracts;
+using OCPI.Validation;
 
-namespace OCPI.Validation;
+namespace OCPI.Tests.Validation;
 
 public class AddOcpiValidationTests
 {

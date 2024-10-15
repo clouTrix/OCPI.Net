@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace OCPI.Tests;
+namespace OCPI.Tests.Exceptions;
 
 public class OcpiResponseTests
 {

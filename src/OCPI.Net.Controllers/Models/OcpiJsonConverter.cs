@@ -10,7 +10,10 @@ namespace OCPI;
 /// JSON Converter to (de)serialize OCPI.Contract data models.
 /// This converter is configurable through injection of a JsonSerdeExtraSettings object into the JsonSerializerOptions
 /// </summary>
-public class OcpiJsonConverter<T>(ILogger<OcpiJsonConverter<T>>? logger = null) : JsonConverter<T> where T: class, new() {
+public class OcpiJsonConverter<T>(ILogger<OcpiJsonConverter<T>>? sourceLogger = null) : JsonConverter<T> where T: class, new()
+{ 
+    private readonly LazyLogging logger = new LazyLogging(sourceLogger);
+    
     private static string PropertyName(PropertyInfo prop)
         => prop.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name ?? prop.Name;
 
@@ -47,7 +50,7 @@ public class OcpiJsonConverter<T>(ILogger<OcpiJsonConverter<T>>? logger = null) 
         var highestVersion = SupportedVersionsOnCaller(options).Max(v => (OcpiVersion?)v);
         var result         = new Lazy<T>(() => new T());
 
-        logger?.LogDebug("Read JSON as object - type: {Type}, version: {Version}", typeToConvert, highestVersion);
+        logger.LogDebug("Read JSON as object - type: {Type}, version: {Version}", () => [ typeToConvert, highestVersion ]);
         
         typeToConvert.GetProperties()
             .Where(HasWritableValue)
@@ -60,7 +63,7 @@ public class OcpiJsonConverter<T>(ILogger<OcpiJsonConverter<T>>? logger = null) 
              )
             .ToList()
             .ForEach(np => {
-                logger?.LogDebug("Read property from JSON - type: {Type}, version: {Version}, property-name: {Name}, property-type: {Value}", typeToConvert, highestVersion, np.Name, np.Property.PropertyType);
+                logger.LogDebug("Read property from JSON - type: {Type}, version: {Version}, property-name: {Name}, property-type: {Value}", () => [ typeToConvert, highestVersion, np.Name, np.Property.PropertyType ]);
                 np.Property.SetValue(
                     result.Value,
                     json[np.Name].Deserialize(np.Property.PropertyType, options)
@@ -75,7 +78,7 @@ public class OcpiJsonConverter<T>(ILogger<OcpiJsonConverter<T>>? logger = null) 
     /// </summary>
     public override void Write(Utf8JsonWriter writer, T sourceObj, JsonSerializerOptions options) {
         var highestVersion = SupportedVersionsOnCaller(options).Max(v => (OcpiVersion?)v);
-        logger?.LogDebug("Write object as JSON - type: {Type}, version: {Version}", sourceObj.GetType(), highestVersion);
+        logger.LogDebug("Write object as JSON - type: {Type}, version: {Version}", () => [ sourceObj.GetType(), highestVersion ]);
         
         writer.WriteStartObject();
         sourceObj.GetType().GetProperties()
@@ -90,7 +93,7 @@ public class OcpiJsonConverter<T>(ILogger<OcpiJsonConverter<T>>? logger = null) 
             )
             .ToList()
             .ForEach(nv => {
-                logger?.LogDebug("Write property to JSON - type: {Type}, version: {Version}, name: {PropertyName}, value: {PropertyValue}", sourceObj.GetType(), highestVersion, nv.Name, nv.Value);
+                logger.LogDebug("Write property to JSON - type: {Type}, version: {Version}, name: {PropertyName}, value: {PropertyValue}", () => [ sourceObj.GetType(), highestVersion, nv.Name, nv.Value ]);
                 writer.WritePropertyName(nv.Name);
                 JsonSerializer.Serialize(writer, nv.Value, nv.Value!.GetType(), options);
             });
