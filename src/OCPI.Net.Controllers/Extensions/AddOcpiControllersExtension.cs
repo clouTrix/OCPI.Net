@@ -21,7 +21,7 @@ public static class AddOcpiControllersExtension
                             () => httpContextAccessor?.HttpContext?.GetEndpoint()?.Metadata.GetMetadata<OcpiEndpointAttribute>()?.Versions ?? []
                     ));
                     
-                    ConfigureJsonSerdes(sp, options.JsonSerializerOptions);
+                    ConfigureJsonSerdes(options.JsonSerializerOptions, sp);
                 })
             .ConfigureApiBehaviorOptions(options => {
                     options.InvalidModelStateResponseFactory = context => {

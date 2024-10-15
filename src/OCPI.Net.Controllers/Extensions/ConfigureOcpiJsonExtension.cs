@@ -17,18 +17,18 @@ public static class ConfigureOcpiJsonExtension {
     public static WebApplicationBuilder ConfigureOcpiJson(this WebApplicationBuilder builder) {
         builder.Services.ConfigureHttpJsonOptions(options => 
             ConfigureJsonSerdes(
-                builder.Services.BuildServiceProvider(), 
-                options.SerializerOptions
+                options.SerializerOptions,
+                builder.Services.BuildServiceProvider() 
         ));
 
         return builder;
     }
 
-    public static void ConfigureJsonSerdes(IServiceProvider sp, JsonSerializerOptions options) {
+    public static void ConfigureJsonSerdes(JsonSerializerOptions options, IServiceProvider? sp = null) {
             options.PropertyNamingPolicy   = JsonNamingPolicy.CamelCase;
             options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             
-            OcpiJsonConverter<T> ConverterFor<T>() where T: class => new (sp.GetService<ILogger<OcpiJsonConverter<T>>>());
+            OcpiJsonConverter<T> ConverterFor<T>() where T: class, new() => new (sp?.GetService<ILogger<OcpiJsonConverter<T>>>());
             
             options.Converters.Add(ConverterFor<OcpiSession>());
             options.Converters.Add(ConverterFor<OcpiCdrLocation>());

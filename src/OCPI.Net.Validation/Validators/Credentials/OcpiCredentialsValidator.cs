@@ -19,10 +19,17 @@ internal class OcpiCredentialsValidator : OcpiValidator<OcpiCredentials>
             .ValidUrl()
             .MaximumLength(2048);
 
-        RuleFor(x => x.Roles)
-            .NotEmpty();
+        WhenOcpiVersionBelow("2.2", () => {
+            RuleFor(x => x.PartyId).NotEmpty();
+            RuleFor(x => x.CountryCode).NotEmpty();
+        });
+        
+        WhenOcpiVersionAbove("2.2", () => {
+            RuleFor(x => x.Roles)
+                .NotEmpty();
 
-        RuleForEach(x => x.Roles!)
-            .SetValidator(credentialsRoleValidator);
+            RuleForEach(x => x.Roles!)
+                .SetValidator(credentialsRoleValidator);
+        });
     }
 }
