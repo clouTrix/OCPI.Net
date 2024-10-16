@@ -10,6 +10,9 @@ public class OcpiCredentials
     [JsonPropertyName("url")]
     public string? Url { get; set; }
 
+    ///
+    /// OCPI 2.1.1 
+    ///
     [OcpiDeprecated("2.1.1")]
     [JsonPropertyName("party_id")]
     public string? PartyId { get; set; }
@@ -21,7 +24,10 @@ public class OcpiCredentials
     [OcpiDeprecated("2.1.1")]
     [JsonPropertyName("business_details")]
     public OcpiBusinessDetails? BusinessDetails { get; set; }
-    
+
+    ///
+    /// OCPI 2.2.1 
+    ///
     [OcpiIntroduced("2.2.1")]
     [JsonPropertyName("roles")]
     public IEnumerable<OcpiCredentialsRole>? Roles { get; set; }

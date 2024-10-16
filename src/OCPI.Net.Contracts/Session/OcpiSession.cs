@@ -26,10 +26,6 @@ public class OcpiSession
     [JsonPropertyName("charging_periods")]
     public IEnumerable<OcpiChargingPeriod>? ChargingPeriods { get; set; }
 
-    //FIXME
-    [JsonPropertyName("total_cost")]
-    public OcpiPrice? TotalCost { get; set; }
-
     [JsonPropertyName("status")]
     public SessionStatus? Status { get; set; }
 
@@ -39,6 +35,10 @@ public class OcpiSession
     ///
     /// OCPI 2.2.1 
     ///
+    [OcpiIntroduced("2.2.1")]
+    [JsonPropertyName("total_cost")]
+    public OcpiPrice? TotalCost { get; set; }
+
     [OcpiIntroduced("2.2.1")]
     [JsonPropertyName("country_code")]
     public CountryCode? CountryCode { get; set; }
@@ -84,14 +84,14 @@ public class OcpiSession
 
     [OcpiDeprecated("2.1.1")]
     [JsonPropertyName("start_datetime")]
-    public DateTime? StartDateTime211 {
+    public DateTime? StartDateTime_V0 {
         get => this.StartDateTime;
         set => this.StartDateTime = value;
     }
 
     [OcpiDeprecated("2.1.1")]
     [JsonPropertyName("end_datetime")]
-    public DateTime? EndDateTime211 {
+    public DateTime? EndDateTime_V0 {
         get => this.EndDateTime;
         set => this.EndDateTime = value;
     }
@@ -100,11 +100,7 @@ public class OcpiSession
     [JsonPropertyName("auth_id")]
     public string? AuthId { get; set; }
 
-    // [OcpiDeprecated("2.1.1")]
-    // [JsonPropertyName("total_cost")]
-    // public Decimal? TotalCost211 {
-    //     get => this.TotalCost?.ExclVat;
-    //     set => 
-    //         this.TotalCost = new OcpiPrice { ExclVat = value };
-    // }
+    [OcpiDeprecated("2.1.1")]
+    [JsonPropertyName("total_cost")]
+    public Decimal? TotalCost_V0 { get; set; }
 }

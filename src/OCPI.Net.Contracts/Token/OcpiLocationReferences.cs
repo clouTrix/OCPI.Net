@@ -17,7 +17,9 @@ public class OcpiLocationReferences
     [JsonPropertyName("evse_uids")]
     public string? EvseUids { get; set; }
 
-    //==================== Deprecated in OCPI 2.2 ========================
+    ///
+    /// OCPI 2.1.1 
+    ///
 
     /// <summary>
     /// Identifies the connectors within the given EVSEs.

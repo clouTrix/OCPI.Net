@@ -19,10 +19,6 @@ public class OcpiCdrLocation
     [JsonPropertyName("postal_code")]
     public string? PostalCode { get; set; }
 
-    [OcpiIntroduced("2.2.1")]
-    [JsonPropertyName("state")]
-    public string? State { get; set; }
-
     [JsonPropertyName("country")]
     public string? Country { get; set; }
 
@@ -46,4 +42,11 @@ public class OcpiCdrLocation
 
     [JsonPropertyName("connector_power_type")]
     public PowerType? ConnectorPowerType { get; set; }
+
+    ///
+    /// OCPI 2.2.1 
+    ///
+    [OcpiIntroduced("2.2.1")]
+    [JsonPropertyName("state")]
+    public string? State { get; set; }
 }

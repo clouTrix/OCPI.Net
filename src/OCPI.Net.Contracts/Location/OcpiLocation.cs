@@ -4,8 +4,6 @@ namespace OCPI.Contracts;
 
 public class OcpiLocation
 {
-    //==================== OCPI 2.2.1 ========================
-
     [JsonPropertyName("country_code")]
     public CountryCode? CountryCode { get; set; }
 
@@ -84,8 +82,9 @@ public class OcpiLocation
     [JsonPropertyName("last_updated")]
     public DateTime? LastUpdated { get; set; }
 
-    //==================== Deprecated in OCPI 2.2 ========================
-
+    ///
+    /// OCPI 2.1.1 
+    ///
     [OcpiDeprecated(after: "2.1.1")]
     [JsonPropertyName("type")]
     public LocationType? Type { get; set; }

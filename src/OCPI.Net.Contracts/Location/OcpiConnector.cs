@@ -4,8 +4,6 @@ namespace OCPI.Contracts;
 
 public class OcpiConnector
 {
-    //==================== OCPI 2.2.1 ========================
-
     [JsonPropertyName("id")]
     public string? Id { get; set; }
 
@@ -36,8 +34,9 @@ public class OcpiConnector
     [JsonPropertyName("last_updated")]
     public DateTime? LastUpdated { get; set; }
 
-    //==================== Deprecated in OCPI 2.2 ========================
-
+    ///
+    /// OCPI 2.1.1 
+    ///
     [OcpiDeprecated(after: "2.1.1")]
     [JsonPropertyName("voltage")]
     public int? Voltage { get; set; }

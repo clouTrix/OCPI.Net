@@ -28,10 +28,13 @@ public class OcpiJsonConverter<T>(ILogger<OcpiJsonConverter<T>>? sourceLogger = 
             OcpiVersion Deprecated() => prop.GetCustomAttribute<OcpiDeprecatedAttribute>()?.Version ?? version.Value;
             OcpiVersion Introduced() => prop.GetCustomAttribute<OcpiIntroducedAttribute>()?.Version ?? version.Value;
             bool IsVersionMarked() => Attribute.IsDefined(prop, typeof(OcpiDeprecatedAttribute)) || Attribute.IsDefined(prop, typeof(OcpiIntroducedAttribute));
+
+            bool ShouldBeIgnored() =>
+                prop.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition == JsonIgnoreCondition.Always;
             
-            return version is not null
-                    ? version <= Deprecated() && version >= Introduced()
-                    : !IsVersionMarked();
+            return !ShouldBeIgnored() && version.HasValue
+                            ? version <= Deprecated() && version >= Introduced()
+                            : !IsVersionMarked();
         };
 
     private IEnumerable<OcpiVersion> SupportedVersionsOnCaller(JsonSerializerOptions options)
@@ -55,6 +58,7 @@ public class OcpiJsonConverter<T>(ILogger<OcpiJsonConverter<T>>? sourceLogger = 
         typeToConvert.GetProperties()
             .Where(HasWritableValue)
             .Where(AllowedForVersion(highestVersion))
+            //TODO: do we also need to take other JSON Attributes into account? (e.g. JsonIgnore, ...)
             .Select(prop =>
                 (
                     Name : options.PropertyNamingPolicy?.ConvertName(PropertyName(prop)) ?? PropertyName(prop),
