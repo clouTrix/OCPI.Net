@@ -4,7 +4,7 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 
-namespace OCPI;
+namespace OCPI.Serdes.Json;
 
 /// <summary>
 /// JSON Converter to (de)serialize OCPI.Contract data models.
@@ -38,8 +38,8 @@ public class OcpiJsonConverter<T>(ILogger<OcpiJsonConverter<T>>? sourceLogger = 
         };
 
     private IEnumerable<OcpiVersion> SupportedVersionsOnCaller(JsonSerializerOptions options)
-        => options.GetConverter(typeof(JsonSerdeExtraSettings)) switch {
-                JsonSerdeExtraSettings conv => conv.Versions,
+        => options.GetConverter(typeof(OcpiJsonConverterExtraSettings)) switch {
+                OcpiJsonConverterExtraSettings conv => conv.Versions,
                                           _ => []
             };
     

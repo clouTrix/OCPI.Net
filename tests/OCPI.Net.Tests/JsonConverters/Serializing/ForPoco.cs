@@ -2,7 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using FluentAssertions;
-using OCPI.Contracts;
+using OCPI.Serdes.Json;
 using Xunit.Abstractions;
 
 namespace OCPI.Tests.JsonConverters.Serializing;
@@ -29,7 +29,7 @@ public class ForPoco(ITestOutputHelper output) {
     public void Poco_Can_Be_Serialized_ForVersion211() {
         var options = new JsonSerializerOptions();
         ConfigureOcpiJsonExtension.ConfigureJsonSerdes(options);
-        options.Converters.Add(new JsonSerdeExtraSettings(() => [ OcpiVersion.v2_1_1 ]));
+        options.Converters.Add(new OcpiJsonConverterExtraSettings(() => [ OcpiVersion.v2_1_1 ]));
         options.Converters.Add(new OcpiJsonConverter<Poco>());
 
         var json = JsonNode.Parse(JsonSerializer.Serialize(poco, options));
@@ -44,7 +44,7 @@ public class ForPoco(ITestOutputHelper output) {
     public void Poco_Can_Be_Serialized_ForVersion221() {
         var options = new JsonSerializerOptions();
         ConfigureOcpiJsonExtension.ConfigureJsonSerdes(options);
-        options.Converters.Add(new JsonSerdeExtraSettings(() => [ OcpiVersion.v2_2_1 ]));
+        options.Converters.Add(new OcpiJsonConverterExtraSettings(() => [ OcpiVersion.v2_2_1 ]));
         options.Converters.Add(new OcpiJsonConverter<Poco>());
 
         var json = JsonNode.Parse(JsonSerializer.Serialize(poco, options));

@@ -1,8 +1,7 @@
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using FluentAssertions;
 using OCPI.Contracts;
-using Xunit.Abstractions;
+using OCPI.Serdes.Json;
 
 namespace OCPI.Tests.JsonConverters.Deserializing;
 
@@ -31,7 +30,7 @@ public class ForCredentials {
     [Fact]
     public void OcpiCredentials_Can_Be_Deserialized_ForVersion211() {
         var options = new JsonSerializerOptions();
-        options.Converters.Add(new JsonSerdeExtraSettings(() => [ OcpiVersion.v2_1_1 ]));
+        options.Converters.Add(new OcpiJsonConverterExtraSettings(() => [ OcpiVersion.v2_1_1 ]));
         ConfigureOcpiJsonExtension.ConfigureJsonSerdes(options);
         
         var creds = JsonSerializer.Deserialize<OcpiCredentials>(jsonStr, options);
@@ -51,7 +50,7 @@ public class ForCredentials {
     [Fact]
     public void OcpiCredentials_Can_Be_Deserialized_ForVersion221() {
         var options = new JsonSerializerOptions();
-        options.Converters.Add(new JsonSerdeExtraSettings(() => [ OcpiVersion.v2_2_1 ]));
+        options.Converters.Add(new OcpiJsonConverterExtraSettings(() => [ OcpiVersion.v2_2_1 ]));
         ConfigureOcpiJsonExtension.ConfigureJsonSerdes(options);
 
         var creds = JsonSerializer.Deserialize<OcpiCredentials>(jsonStr, options);

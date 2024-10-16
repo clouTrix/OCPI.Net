@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using OCPI.Serdes.Json;
 using OCPI.Services;
 
 using static OCPI.ConfigureOcpiJsonExtension;
@@ -17,7 +18,7 @@ public static class AddOcpiControllersExtension
                     
                     // gets the supported OCPI versions from the controller attributes
                     options.JsonSerializerOptions.Converters.Add(
-                        new JsonSerdeExtraSettings(
+                        new OcpiJsonConverterExtraSettings(
                             () => httpContextAccessor?.HttpContext?.GetEndpoint()?.Metadata.GetMetadata<OcpiEndpointAttribute>()?.Versions ?? []
                     ));
                     

@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using OCPI.Contracts;
+using OCPI.Serdes.Json;
 
 namespace OCPI;
 
