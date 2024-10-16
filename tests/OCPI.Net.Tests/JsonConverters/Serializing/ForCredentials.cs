@@ -33,7 +33,7 @@ public class ForCredentials(ITestOutputHelper output) {
     [Fact]
     public void OcpiCredentials_Can_Be_Serialized_ForVersion211() {
         var options = new JsonSerializerOptions();
-        options.Converters.Add(new JsonSerdeExtraSettings(() => [ OcpiVersion.v2_1_1 ]));
+        options.Converters.Add(new OcpiJsonConverterExtraSettings(() => [ OcpiVersion.v2_1_1 ]));
         ConfigureOcpiJsonExtension.ConfigureJsonSerdes(options);
 
         var json = JsonNode.Parse(JsonSerializer.Serialize(fullCredentials, options));
@@ -57,7 +57,7 @@ public class ForCredentials(ITestOutputHelper output) {
     [Fact]
     public void OcpiCredentials_Can_Be_Serialized_ForVersion221() {
         var options = new JsonSerializerOptions();
-        options.Converters.Add(new JsonSerdeExtraSettings(() => [ OcpiVersion.v2_2_1 ]));
+        options.Converters.Add(new OcpiJsonConverterExtraSettings(() => [ OcpiVersion.v2_2_1 ]));
         ConfigureOcpiJsonExtension.ConfigureJsonSerdes(options);
 
         var json = JsonNode.Parse(JsonSerializer.Serialize(fullCredentials, options));

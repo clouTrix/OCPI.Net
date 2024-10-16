@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using OCPI.Contracts;
+using OCPI.Serdes.Json;
 
 namespace OCPI;
 
@@ -27,7 +28,7 @@ public static class ConfigureOcpiJsonExtension {
     public static void ConfigureJsonSerdes(JsonSerializerOptions options, IServiceProvider? sp = null) {
             options.PropertyNamingPolicy   = JsonNamingPolicy.CamelCase;
             options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-            
+
             OcpiJsonConverter<T> ConverterFor<T>() where T: class, new() => new (sp?.GetService<ILogger<OcpiJsonConverter<T>>>());
             
             options.Converters.Add(ConverterFor<OcpiSession>());
