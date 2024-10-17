@@ -2,20 +2,39 @@ using Microsoft.Extensions.Logging;
 
 namespace OCPI;
 
-public class LazyLogging(ILogger? logger = null)
+public class LazyLogging(ILogger? logger = null): ILogger
 {
-    public ILogger? Underlying => logger;
-    private static Action<string, Func<object?[]>> DefaultNOOP = (_, _) => { };
+    public IDisposable? BeginScope<TState>(TState state) where TState : notnull
+        => logger?.BeginScope(state);
 
-    public Action<string, Func<object?[]>> LogTrace    => Log(LogLevel.Trace);
-    public Action<string, Func<object?[]>> LogDebug    => Log(LogLevel.Debug);
-    public Action<string, Func<object?[]>> LogInfo     => Log(LogLevel.Information);
-    public Action<string, Func<object?[]>> LogWarn     => Log(LogLevel.Warning);
-    public Action<string, Func<object?[]>> LogError    => Log(LogLevel.Error);
-    public Action<string, Func<object?[]>> LogCritical => Log(LogLevel.Critical);
+    public bool IsEnabled(LogLevel logLevel)
+        => logger?.IsEnabled(logLevel) ?? false;
+
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+        => logger?.Log(logLevel, eventId, state, exception, formatter);
+
+    public void Trace(string message, Func<object?[]> paramsProvider)
+        => Log(LogLevel.Trace)(message, paramsProvider);
+
+    public void Debug(string message, Func<object?[]> paramsProvider)
+        => Log(LogLevel.Debug)(message, paramsProvider);
+
+    public void Info(string message, Func<object?[]> paramsProvider)
+        => Log(LogLevel.Information)(message, paramsProvider);
+
+    public void Warn(string message, Func<object?[]> paramsProvider)
+        => Log(LogLevel.Warning)(message, paramsProvider);
+
+    public void Error(string message, Func<object?[]> paramsProvider)
+        => Log(LogLevel.Error)(message, paramsProvider);
+
+    public void Critical(string message, Func<object?[]> paramsProvider)
+        => Log(LogLevel.Critical)(message, paramsProvider);
+
+    private static Action<string, Func<object?[]>> DefaultNOOP = (_, _) => { };
 
     public Action<string, Func<object?[]>> Log(LogLevel level)
         => logger?.IsEnabled(level) ?? false
-                        ? (message, parameters) => logger.Log(level, message, parameters.Invoke())
+                        ? (message, parameters) => logger!.Log(level, message, parameters.Invoke())
                         : DefaultNOOP;
 }
