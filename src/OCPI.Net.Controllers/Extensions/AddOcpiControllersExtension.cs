@@ -18,8 +18,10 @@ public static class AddOcpiControllersExtension
                     
                     // gets the supported OCPI versions from the controller attributes
                     options.JsonSerializerOptions.Converters.Add(
-                        new OcpiJsonConverterExtraSettings(
-                            () => httpContextAccessor?.HttpContext?.GetEndpoint()?.Metadata.GetMetadata<OcpiEndpointAttribute>()?.Versions ?? []
+                        new OcpiJsonConverterExtraSettings(() => 
+                               httpContextAccessor?.HttpContext?.GetEndpoint()?.Metadata.GetMetadata<OcpiEndpointAttribute>()?.Versions
+                            ?? httpContextAccessor?.HttpContext?.GetEndpoint()?.Metadata.GetMetadata<OcpiVersionAttribute>()?.Versions
+                            ?? []
                     ));
                     
                     ConfigureJsonSerdes(options.JsonSerializerOptions, sp);
