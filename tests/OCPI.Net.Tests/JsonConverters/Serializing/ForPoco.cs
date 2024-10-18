@@ -1,28 +1,21 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
 using FluentAssertions;
 using OCPI.Serdes.Json;
 using Xunit.Abstractions;
 
 namespace OCPI.Tests.JsonConverters.Serializing;
 
-public class Poco
-{
-    [JsonPropertyName("id")]
-    [OcpiDeprecated("2.1.1")]
-    public int? IdV0 { get; set; }
-    
-    [JsonPropertyName("id")]
-    [OcpiIntroduced("2.2.1")]
-    public string? IdV1 { get; set; }
-}
-
 public class ForPoco(ITestOutputHelper output) {
     private static readonly Poco poco = 
         new Poco {
             IdV0 = 666,
-            IdV1 = "666***666"
+            IdV1 = "666***666",
+            _UnknownFields = new Dictionary<string, JsonNode>
+            {
+                { "unknown1", JsonValue.Create("beelzebub") },
+                { "unknown2", JsonValue.Create(666)         }
+            }
         };
     
     [Fact]
@@ -32,12 +25,14 @@ public class ForPoco(ITestOutputHelper output) {
         options.Converters.Add(new OcpiJsonConverterExtraSettings(() => [ OcpiVersion.v2_1_1 ]));
         options.Converters.Add(new OcpiJsonConverter<Poco>());
 
-        var json = JsonNode.Parse(JsonSerializer.Serialize(poco, options));
+        var json = JsonNode.Parse(JsonSerializer.Serialize(poco, options))?.AsObject();
 
         json.Should().NotBeNull();
-        output.WriteLine(
-            json!.ToJsonString(new JsonSerializerOptions { WriteIndented = true })
-        );
+        json!.ToDictionary().Select(kv => kv.Key).Should().Equal(["id"]);
+
+        // output.WriteLine(
+        //     json!.ToJsonString(new JsonSerializerOptions { WriteIndented = true })
+        // );
     }
     
     [Fact]
@@ -47,11 +42,13 @@ public class ForPoco(ITestOutputHelper output) {
         options.Converters.Add(new OcpiJsonConverterExtraSettings(() => [ OcpiVersion.v2_2_1 ]));
         options.Converters.Add(new OcpiJsonConverter<Poco>());
 
-        var json = JsonNode.Parse(JsonSerializer.Serialize(poco, options));
+        var json = JsonNode.Parse(JsonSerializer.Serialize(poco, options))?.AsObject();
 
         json.Should().NotBeNull();
-        output.WriteLine(
-            json!.ToJsonString(new JsonSerializerOptions { WriteIndented = true })
-        );
+        json!.ToDictionary().Select(kv => kv.Key).Should().Equal(["id"]);
+
+        // output.WriteLine(
+        //     json!.ToJsonString(new JsonSerializerOptions { WriteIndented = true })
+        // );
     }
 }

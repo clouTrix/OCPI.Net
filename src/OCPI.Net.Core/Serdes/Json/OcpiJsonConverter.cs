@@ -14,14 +14,14 @@ public class OcpiJsonConverter<T>(ILogger<OcpiJsonConverter<T>>? sourceLogger = 
 { 
     private readonly LazyLogging logger = new LazyLogging(sourceLogger);
     
-    private static string PropertyName(PropertyInfo prop)
-        => prop.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name ?? prop.Name;
-
     private static Func<PropertyInfo, bool> HasReadableValue(object? obj)
         => prop => prop.CanRead && prop.GetValue(obj, null) is not null;
 
     private static bool HasWritableValue(PropertyInfo prop)
         => prop.CanWrite;
+
+    private static bool IsExtensionDataProperty(PropertyInfo prop)
+        => prop.GetCustomAttribute<JsonExtensionDataAttribute>() is not null;
 
     private static Func<PropertyInfo, bool> AllowedForVersion(OcpiVersion? version)
         => prop => {
@@ -42,6 +42,34 @@ public class OcpiJsonConverter<T>(ILogger<OcpiJsonConverter<T>>? sourceLogger = 
                 OcpiJsonConverterExtraSettings conv => conv.Versions,
                                           _ => []
             };
+
+    private static string PropertyName(PropertyInfo prop)
+        => prop.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name ?? prop.Name;
+
+    private static IEnumerable<(string Name, PropertyInfo Property)> AllPropertiesRenamed(Type typeToConvert, JsonSerializerOptions options)
+        => typeToConvert.GetProperties()
+            .Select(prop =>
+                (
+                    options.PropertyNamingPolicy?.ConvertName(PropertyName(prop)) ?? PropertyName(prop),
+                    prop
+                )
+            );
+    
+    private JsonObject FindUnknownFields(JsonNode json, Type typeToConvert, JsonSerializerOptions options)
+    {
+        var propertyNames = AllPropertiesRenamed(typeToConvert, options)
+                                        .Select(e => e.Name)
+                                        .ToList();
+
+        var result = new JsonObject();
+        json.AsObject()
+            .ExceptBy(propertyNames, kv => kv.Key)
+            .Where(kv => kv.Value is not null)
+            .ForEach( kv =>
+                result.Add(kv.Key, kv.Value!.DeepClone())
+             );
+        return result;
+    } 
     
     /// <summary>
     /// 
@@ -54,25 +82,24 @@ public class OcpiJsonConverter<T>(ILogger<OcpiJsonConverter<T>>? sourceLogger = 
         var result         = new Lazy<T>(() => new T());
 
         logger.Debug("Read JSON as object - type: {Type}, version: {Version}", () => [ typeToConvert, highestVersion ]);
-        
-        typeToConvert.GetProperties()
-            .Where(HasWritableValue)
-            .Where(AllowedForVersion(highestVersion))
-            //TODO: do we also need to take other JSON Attributes into account? (e.g. JsonIgnore, ...)
-            .Select(prop =>
-                (
-                    Name : options.PropertyNamingPolicy?.ConvertName(PropertyName(prop)) ?? PropertyName(prop),
-                    Property: prop
-                )
-             )
-            .ToList()
-            .ForEach(np => {
-                logger.Debug("Read property from JSON - type: {Type}, version: {Version}, property-name: {Name}, property-type: {Value}", () => [ typeToConvert, highestVersion, np.Name, np.Property.PropertyType ]);
-                np.Property.SetValue(
-                    result.Value,
-                    json[np.Name].Deserialize(np.Property.PropertyType, options)
-                );
-            });
+
+        (PropertyInfo Property, object? Value) DefinePropertyValue((string Name, PropertyInfo Property) e)
+            => ( e.Property,
+                 IsExtensionDataProperty(e.Property)
+                     ? FindUnknownFields(json, typeToConvert, options).Deserialize(e.Property.PropertyType)
+                     : json[e.Name].Deserialize(e.Property.PropertyType, options)
+               );
+
+        AllPropertiesRenamed(typeToConvert, options)
+            .Do(e => logger.Debug("Read property from JSON - type: {Type}, version: {Version}, property-name: {Name}, property-type: {Value}", () => [typeToConvert, highestVersion, e.Name, e.Property.PropertyType]))
+            .Where(e => HasWritableValue(e.Property))
+            .Where(e => AllowedForVersion(highestVersion)(e.Property))
+            .Select(DefinePropertyValue)
+            .Where(e => e.Value is not null)
+            .Do(e => logger.Debug("Set property value from JSON - type: {Type}, version: {Version}, property-name: {Name}, property-type: {Type}, property-value: {Value}", () => [typeToConvert, highestVersion, e.Property.Name, e.Property.PropertyType, e.Value]))
+            .ForEach(e =>
+                e.Property.SetValue(result.Value, e.Value)
+            );
 
         return result.IsValueCreated? result.Value : null;
     }
@@ -84,22 +111,22 @@ public class OcpiJsonConverter<T>(ILogger<OcpiJsonConverter<T>>? sourceLogger = 
         var highestVersion = SupportedVersionsOnCaller(options).Max(v => (OcpiVersion?)v);
         logger.Debug("Write object as JSON - type: {Type}, version: {Version}", () => [ sourceObj.GetType(), highestVersion ]);
         
+        (string Name, object? Value) DefinePropertyValue((string Name, PropertyInfo Property) e)
+            => ( e.Name,
+                 e.Property.GetValue(sourceObj, null)
+               );
+        
         writer.WriteStartObject();
-        sourceObj.GetType().GetProperties()
-            .Where(HasReadableValue(sourceObj))
-            .Where(AllowedForVersion(highestVersion))
-            //TODO: do we also need to take other JSON Attributes into account? (e.g. JsonIgnore, ...)
-            .Select(prop =>
-                (
-                    Name : options.PropertyNamingPolicy?.ConvertName(PropertyName(prop)) ?? PropertyName(prop),
-                    Value: prop.GetValue(sourceObj, null)
-                )
-            )
-            .ToList()
-            .ForEach(nv => {
-                logger.Debug("Write property to JSON - type: {Type}, version: {Version}, name: {PropertyName}, value: {PropertyValue}", () => [ sourceObj.GetType(), highestVersion, nv.Name, nv.Value ]);
-                writer.WritePropertyName(nv.Name);
-                JsonSerializer.Serialize(writer, nv.Value, nv.Value!.GetType(), options);
+        AllPropertiesRenamed(sourceObj.GetType(), options)
+            .Do(e => logger.Debug("Write property to JSON - type: {Type}, version: {Version}, property-name: {Name}, property-type: {Type}", () => [ sourceObj.GetType(), highestVersion, e.Name, e.Property.PropertyType ]))
+            .Where(e => ! IsExtensionDataProperty(e.Property))
+            .Where(e => HasReadableValue(sourceObj)(e.Property))
+            .Where(e => AllowedForVersion(highestVersion)(e.Property))
+            .Select(DefinePropertyValue)
+            .Do(e => logger.Debug("Write property to JSON - type: {Type}, version: {Version}, property-name: {Name}, property-value: {Value}", () => [ sourceObj.GetType(), highestVersion, e.Name, e.Value ]))
+            .ForEach(e => {
+                writer.WritePropertyName(e.Name);
+                JsonSerializer.Serialize(writer, e.Value, e.Value!.GetType(), options);
             });
         
         writer.WriteEndObject();
