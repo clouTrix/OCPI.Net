@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace OCPI.Tests.JsonConverters.Serializing;
 
-public class ForPoco(ITestOutputHelper output) {
+public class ForPoco(/*ITestOutputHelper output*/) {
     private static readonly Poco poco = 
         new Poco {
             IdV0 = 666,
@@ -26,13 +26,15 @@ public class ForPoco(ITestOutputHelper output) {
         options.Converters.Add(new OcpiJsonConverter<Poco>());
 
         var json = JsonNode.Parse(JsonSerializer.Serialize(poco, options))?.AsObject();
+        // output.WriteLine(
+        //     json?.ToJsonString(new JsonSerializerOptions { WriteIndented = true })
+        // );
 
         json.Should().NotBeNull();
-        json!.ToDictionary().Select(kv => kv.Key).Should().Equal(["id"]);
+        json!["id"]?.GetValue<int>().Should().Be(666);
 
-        // output.WriteLine(
-        //     json!.ToJsonString(new JsonSerializerOptions { WriteIndented = true })
-        // );
+        // _UnknownFields are NOT serialized
+        json!.ToDictionary().Select(kv => kv.Key).Should().Equal(["id"]);
     }
     
     [Fact]
@@ -43,12 +45,15 @@ public class ForPoco(ITestOutputHelper output) {
         options.Converters.Add(new OcpiJsonConverter<Poco>());
 
         var json = JsonNode.Parse(JsonSerializer.Serialize(poco, options))?.AsObject();
+        // output.WriteLine(
+        //     json?.ToJsonString(new JsonSerializerOptions { WriteIndented = true })
+        // );
 
         json.Should().NotBeNull();
+        json!["id"]?.GetValue<string>().Should().Be("666***666");
+        
+        // _UnknownFields are NOT serialized
         json!.ToDictionary().Select(kv => kv.Key).Should().Equal(["id"]);
 
-        // output.WriteLine(
-        //     json!.ToJsonString(new JsonSerializerOptions { WriteIndented = true })
-        // );
     }
 }

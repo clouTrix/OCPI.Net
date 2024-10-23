@@ -27,12 +27,12 @@ public class OcpiJsonConverter<T>(ILogger<OcpiJsonConverter<T>>? sourceLogger = 
         => prop => {
             OcpiVersion Deprecated() => prop.GetCustomAttribute<OcpiDeprecatedAttribute>()?.Version ?? version.Value;
             OcpiVersion Introduced() => prop.GetCustomAttribute<OcpiIntroducedAttribute>()?.Version ?? version.Value;
-            bool IsVersionMarked() => Attribute.IsDefined(prop, typeof(OcpiDeprecatedAttribute)) || Attribute.IsDefined(prop, typeof(OcpiIntroducedAttribute));
+            bool IsVersionMarked() => version is not null && (Attribute.IsDefined(prop, typeof(OcpiDeprecatedAttribute)) || Attribute.IsDefined(prop, typeof(OcpiIntroducedAttribute)));
 
             bool ShouldBeIgnored() =>
                 prop.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition == JsonIgnoreCondition.Always;
             
-            return !ShouldBeIgnored() && version.HasValue
+            return version.HasValue && !ShouldBeIgnored() 
                             ? version <= Deprecated() && version >= Introduced()
                             : !IsVersionMarked();
         };

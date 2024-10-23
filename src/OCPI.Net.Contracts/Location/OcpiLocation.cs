@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace OCPI.Contracts;
 
@@ -88,4 +89,8 @@ public class OcpiLocation
     [OcpiDeprecated(after: "2.1.1")]
     [JsonPropertyName("type")]
     public LocationType? Type { get; set; }
+    
+    // Generic optional custom extension properties grabber
+    [JsonExtensionData, JsonIgnore]
+    public Dictionary<string, JsonNode> _UnknownFields { get; set; } = new();
 }

@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace OCPI.Contracts;
 
@@ -7,7 +8,6 @@ public class OcpiSession
     ///
     /// OCPI 
     ///
-
     [JsonPropertyName("id")]
     public string? Id { get; set; }
 
@@ -103,4 +103,8 @@ public class OcpiSession
     [OcpiDeprecated("2.1.1")]
     [JsonPropertyName("total_cost")]
     public Decimal? TotalCost_V0 { get; set; }
+
+    // Generic optional custom extension properties grabber
+    [JsonExtensionData, JsonIgnore]
+    public Dictionary<string, JsonNode> _UnknownFields { get; set; } = new();
 }
