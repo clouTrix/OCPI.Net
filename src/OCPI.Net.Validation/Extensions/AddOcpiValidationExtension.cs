@@ -34,6 +34,7 @@ public static class AddOcpiValidationExtension
                 var validationContext = x.GetRequiredService<OcpiValidationContext>();
                 (instance as IActionValidator)!.ActionType = validationContext.ActionType;
                 (instance as IOcpiValidator)!.OcpiVersion = validationContext.OcpiVersion!.Value;
+                (instance as IOcpiValidator)!.OcpiRelaxations = validationContext.OcpiRelaxations;
                 return instance!;
             });
         }

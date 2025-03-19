@@ -40,7 +40,7 @@ internal class OcpiConnectorValidator : OcpiValidator<OcpiConnector>
             .IsInEnum();
 
         RuleFor(x => x.TermsAndConditionsUrl)
-            .ValidUrl();
+            .ValidUrl().Unless(_ => OcpiRelaxations.Has(OcpiValidatorRelaxations.UrlAsAnyString));
 
         RuleFor(x => x.LastUpdated)
             .NotEmpty()

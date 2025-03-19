@@ -40,7 +40,7 @@ internal class OcpiTariffValidator : OcpiValidator<OcpiTariff>
             .SetValidator(displayTextValidator);
 
         RuleFor(x => x.TariffAltUrl)
-            .ValidUrl();
+            .ValidUrl().Unless(_ => OcpiRelaxations.Has(OcpiValidatorRelaxations.UrlAsAnyString));
 
         RuleFor(x => x.MinPrice!)
             .SetValidator(priceValidator);

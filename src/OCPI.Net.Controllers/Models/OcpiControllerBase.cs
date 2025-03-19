@@ -26,12 +26,13 @@ public abstract class OcpiControllerBase : ControllerBase
     }
 
     [NonAction]
-    public void OcpiValidate<T>(T value, OcpiVersion forOcpiVersion)
+    public void OcpiValidate<T>(T value, OcpiVersion forOcpiVersion, OcpiValidatorRelaxations relaxations = OcpiValidatorRelaxations.None)
     {
         if (value is null) return;
 
         var validationContext = GetRequiredService<OcpiValidationContext>();
         validationContext.OcpiVersion = forOcpiVersion;
+        validationContext.OcpiRelaxations = relaxations;
 
         var validator = GetRequiredService<IOcpiValidator<T>>();
         var validationResult = validator.Validate(value);

@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using FluentAssertions;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using OCPI.Contracts;
 using OCPI.Validation;

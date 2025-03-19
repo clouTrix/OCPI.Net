@@ -16,7 +16,7 @@ internal class OcpiCredentialsValidator : OcpiValidator<OcpiCredentials>
 
         RuleFor(x => x.Url)
             .NotEmpty()
-            .ValidUrl()
+            .ValidUrl().Unless(_ => OcpiRelaxations.Has(OcpiValidatorRelaxations.UrlAsAnyString))
             .MaximumLength(2048);
 
         WhenOcpiVersionBelow("2.2", () => {

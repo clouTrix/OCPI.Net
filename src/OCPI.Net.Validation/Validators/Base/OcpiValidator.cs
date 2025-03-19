@@ -6,7 +6,9 @@ namespace OCPI.Contracts;
 internal abstract class OcpiValidator<T> : ActionValidator<T>, IOcpiValidator<T>
 {
     public OcpiVersion OcpiVersion { get; set; }
-
+    
+    public OcpiValidatorRelaxations OcpiRelaxations { get; set; }
+    
     public IConditionBuilder WhenOcpiVersionAbove(string version, Action action)
         => WhenOcpiVersionAbove(version.ToEnum<OcpiVersion>(), action);
 

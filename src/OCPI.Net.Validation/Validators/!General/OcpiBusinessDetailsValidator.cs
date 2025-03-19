@@ -13,8 +13,8 @@ internal class OcpiBusinessDetailsValidator : OcpiValidator<OcpiBusinessDetails>
             .MaximumLength(100);
 
         RuleFor(x => x.Website)
-            .ValidUrl();
-
+            .ValidUrl().Unless(_ => OcpiRelaxations.Has(OcpiValidatorRelaxations.UrlAsAnyString));
+        
         RuleFor(x => x.Logo!)
             .SetValidator(imageValidator);
     }

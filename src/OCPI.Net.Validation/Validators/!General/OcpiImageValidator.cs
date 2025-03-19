@@ -9,10 +9,10 @@ internal class OcpiImageValidator : OcpiValidator<OcpiImage>
     {
         RuleFor(x => x.Url)
             .NotEmpty()
-            .ValidUrl();
+            .ValidUrl().Unless(_ => OcpiRelaxations.Has(OcpiValidatorRelaxations.UrlAsAnyString));
 
         RuleFor(x => x.Thumbnail)
-            .ValidUrl();
+            .ValidUrl().Unless(_ => OcpiRelaxations.Has(OcpiValidatorRelaxations.UrlAsAnyString));;
 
         RuleFor(x => x.Category)
             .NotEmpty()
